@@ -12,7 +12,7 @@ export type Relationship = {
   addressee?: Profile;
 };
 
-type Profile = {
+export type Profile = {
   id: string;
   email: string | null;
   display_name: string | null;

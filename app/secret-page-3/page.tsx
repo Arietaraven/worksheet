@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AccountActions } from "@/components/AccountActions";
-import { FriendManager, type Relationship } from "@/components/FriendManager";
+import {
+  FriendManager,
+  type Profile,
+  type Relationship,
+} from "@/components/FriendManager";
 import { SecretEditor, SecretViewer } from "@/components/SecretMessageCard";
 import { useSupabase } from "@/components/providers/SupabaseProvider";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
@@ -12,6 +16,18 @@ export default function SecretPageThree() {
   const { supabase } = useSupabase();
   const [relationships, setRelationships] = useState<Relationship[]>([]);
   const [loadingRelationships, setLoadingRelationships] = useState(true);
+
+  type RawRelationship = Omit<Relationship, "requester" | "addressee"> & {
+    requester?: Profile | Profile[] | null;
+    addressee?: Profile | Profile[] | null;
+  };
+
+  const normalizeProfile = (
+    profile?: Profile | Profile[] | null,
+  ): Profile | undefined => {
+    if (!profile) return undefined;
+    return Array.isArray(profile) ? profile[0] : profile;
+  };
 
   const refreshRelationships = useCallback(async () => {
     if (!session) return;
@@ -27,7 +43,12 @@ export default function SecretPageThree() {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setRelationships(data as Relationship[]);
+      const normalized = (data as RawRelationship[]).map((item) => ({
+        ...item,
+        requester: normalizeProfile(item.requester),
+        addressee: normalizeProfile(item.addressee),
+      }));
+      setRelationships(normalized);
     }
     setLoadingRelationships(false);
   }, [session, supabase]);
