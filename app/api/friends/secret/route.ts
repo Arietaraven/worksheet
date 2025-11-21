@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "friendId is required" }, { status: 400 });
   }
 
-  const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+  const authClient = createClient(supabaseUrl as string, supabaseAnonKey as string, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const {
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+  const userClient = createClient(supabaseUrl as string, supabaseAnonKey as string, {
     global: { headers: { Authorization: `Bearer ${token}` } },
     auth: { persistSession: false, autoRefreshToken: false },
   });

@@ -15,8 +15,12 @@ if (!supabaseServiceKey) {
   );
 }
 
+const resolvedSupabaseUrl = supabaseUrl;
+const resolvedSupabaseAnonKey = supabaseAnonKey;
+const resolvedSupabaseServiceKey = supabaseServiceKey;
+
 export async function DELETE(request: Request) {
-  if (!supabaseServiceKey) {
+  if (!resolvedSupabaseServiceKey) {
     return NextResponse.json(
       { error: "Account deletion is unavailable." },
       { status: 500 },
@@ -30,7 +34,7 @@ export async function DELETE(request: Request) {
 
   const token = authHeader.replace("Bearer ", "");
 
-  const userClient = createClient(supabaseUrl, supabaseAnonKey);
+  const userClient = createClient(resolvedSupabaseUrl, resolvedSupabaseAnonKey);
   const {
     data: { user },
     error: userError,
@@ -43,7 +47,7 @@ export async function DELETE(request: Request) {
     );
   }
 
-  const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
+  const adminClient = createClient(resolvedSupabaseUrl, resolvedSupabaseServiceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
   const { error: deleteError } = await adminClient.auth.admin.deleteUser(
